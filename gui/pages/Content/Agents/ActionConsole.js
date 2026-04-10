@@ -8,11 +8,12 @@ function ActionBox({action, index, denied, reasons, handleDeny, handleSelection,
   const isDenied = denied[index];
 
   return (
+    
     <div key={action.id} className={styles.history_box}
          style={{background: '#272335', padding: '16px', cursor: 'default'}}>
       <div style={{display: 'flex', flexDirection: 'column'}}>
         {action.question && (<div className={styles.feed_title}>{action.question}</div>)}
-        {!action.question && (<div>Tool <b>{action.tool_name}</b> is seeking for Permissions</div>)}
+        {!action.question && (<div>Tool <b>{action.tool_name}</b> is requesting permissions</div>)}
 
         {isDenied && (
           <div style={{marginTop: '26px'}}>
@@ -68,7 +69,7 @@ function HistoryBox({action}) {
     <div key={action.id} className={styles.history_box}
          style={{background: '#272335', padding: '16px', cursor: 'default'}}>
       <div style={{display: 'flex', flexDirection: 'column'}}>
-        <div>Permissions for <b>{action.tool_name}</b> was::</div>
+        <div>Permission for <b>{action.tool_name}</b> was:</div>
         {action.status && action.status === 'APPROVED' ? (
           <button className="history_permission mt_16">
             <Image width={12} height={12} src="/images/check.svg" alt="check-icon"/>
@@ -82,7 +83,7 @@ function HistoryBox({action}) {
         )}
         {action.user_feedback != null &&
           <div style={{display: 'flex', flexDirection: 'column'}}>
-            <div className="mt_16" style={{color: '#888888'}}>FeedBack</div>
+            <div className="mt_16" style={{color: '#888888'}}>Feedback</div>
             <div className="mt_6 mb_8">{action.user_feedback}</div>
           </div>
         }
