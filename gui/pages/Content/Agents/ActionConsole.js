@@ -144,9 +144,11 @@ export default function ActionConsole({actions, setPendingPermissions}) {
         : [...prevHiddenActions, permissionId]
     ));
 
+    const normalizedFeedback = (reasons[index] || '').trim();
+
     const data = {
       status: status,
-      user_feedback: reasons[index],
+      user_feedback: normalizedFeedback.length > 0 ? normalizedFeedback : null,
     };
 
     updatePermissions(permissionId, data).then((response) => {
