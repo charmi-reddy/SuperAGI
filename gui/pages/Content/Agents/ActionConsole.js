@@ -99,7 +99,7 @@ function HistoryBox({action}) {
   )
 }
 
-export default function ActionConsole({actions, pendingPermission, setPendingPermissions}) {
+export default function ActionConsole({actions, setPendingPermissions}) {
   const [hiddenActions, setHiddenActions] = useState([]);
   const [denied, setDenied] = useState([]);
   const [reasons, setReasons] = useState([]);
@@ -133,8 +133,9 @@ export default function ActionConsole({actions, pendingPermission, setPendingPer
     };
 
     updatePermissions(permissionId, data).then((response) => {
-      if (response.status === 200)
-        setPendingPermissions(pendingPermission - 1)
+      if (response.status === 200) {
+        setPendingPermissions((prev) => Math.max((prev || 0) - 1, 0));
+      }
     });
   };
 
