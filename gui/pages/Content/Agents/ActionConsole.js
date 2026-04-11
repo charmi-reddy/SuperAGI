@@ -103,17 +103,17 @@ export default function ActionConsole({actions, pendingPermission, setPendingPer
   const [hiddenActions, setHiddenActions] = useState([]);
   const [denied, setDenied] = useState([]);
   const [reasons, setReasons] = useState([]);
-  const [localActionIds, setLocalActionIds] = useState([]);
 
   useEffect(() => {
-    const updatedActions = actions?.filter((action) => !localActionIds.includes(action.id));
-
-    if (updatedActions && updatedActions.length > 0) {
-      setLocalActionIds((prevIds) => [...prevIds, ...updatedActions.map(({id}) => id)]);
-
-      setDenied((prevDenied) => prevDenied.map((value, index) => updatedActions[index] ? false : value));
-      setReasons((prevReasons) => prevReasons.map((value, index) => updatedActions[index] ? '' : value));
+    if (!actions || actions.length === 0) {
+      setDenied([]);
+      setReasons([]);
+      return;
     }
+
+    // Keep local state aligned to action list length while preserving existing user input.
+    setDenied((prevDenied) => actions.map((_, index) => prevDenied[index] ?? false));
+    setReasons((prevReasons) => actions.map((_, index) => prevReasons[index] ?? ''));
   }, [actions]);
 
   const handleDeny = (index) => {
@@ -125,7 +125,7 @@ export default function ActionConsole({actions, pendingPermission, setPendingPer
   };
 
   const handleSelection = (index, status, permissionId) => {
-    setHiddenActions((prevHiddenActions) => [...prevHiddenActions, index]);
+    setHiddenActions((prevHiddenActions) => [...prevHiddenActions, permissionId]);
 
     const data = {
       status: status,
@@ -143,7 +143,7 @@ export default function ActionConsole({actions, pendingPermission, setPendingPer
       {actions && actions.length > 0 ? (
         <div className={styles.detail_body} style={{height: 'auto'}}>
           {actions.map((action, index) => {
-            if (action.status === 'PENDING' && !hiddenActions.includes(index)) {
+            if (action.status === 'PENDING' && !hiddenActions.includes(action.id)) {
               return (<ActionBox key={action.id} action={action} index={index} denied={denied} setReasons={setReasons}
                                  reasons={reasons} handleDeny={handleDeny} handleSelection={handleSelection}/>);
             } else if (action.status === 'APPROVED' || action.status === 'REJECTED') {

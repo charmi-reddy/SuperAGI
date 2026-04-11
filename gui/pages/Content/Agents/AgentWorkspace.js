@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useMemo} from 'react';
+import React, {useEffect, useState} from 'react';
 import Image from 'next/image';
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -103,9 +103,13 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
       });
   };
 
-  const pendingPermissions = useMemo(() => {
-    if (!fetchedData) return 0;
-    setPendingPermissions(fetchedData.filter(permission => permission.status === "PENDING").length);
+  useEffect(() => {
+    if (!fetchedData) {
+      setPendingPermissions(0);
+      return;
+    }
+
+    setPendingPermissions(fetchedData.filter((permission) => permission.status === 'PENDING').length);
   }, [fetchedData]);
 
   const addInstruction = () => {
