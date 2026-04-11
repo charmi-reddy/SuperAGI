@@ -105,10 +105,14 @@ export default function ActionConsole({actions, setPendingPermissions}) {
 
   useEffect(() => {
     if (!actions || actions.length === 0) {
+      setHiddenActions([]);
       setDenied([]);
       setReasons([]);
       return;
     }
+
+    const actionIds = new Set(actions.map((action) => action.id));
+    setHiddenActions((prevHiddenActions) => prevHiddenActions.filter((id) => actionIds.has(id)));
 
     // Keep local state aligned to action list length while preserving existing user input.
     setDenied((prevDenied) => actions.map((_, index) => prevDenied[index] ?? false));
