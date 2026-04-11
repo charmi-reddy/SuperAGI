@@ -8,8 +8,7 @@ function ActionBox({action, index, denied, reasons, handleDeny, handleSelection,
   const isDenied = denied[index];
 
   return (
-    
-    <div key={action.id} className={styles.history_box}
+    <div className={styles.history_box}
          style={{background: '#272335', padding: '16px', cursor: 'default'}}>
       <div style={{display: 'flex', flexDirection: 'column'}}>
         {action.question && (<div className={styles.feed_title}>{action.question}</div>)}
@@ -66,7 +65,7 @@ function ActionBox({action, index, denied, reasons, handleDeny, handleSelection,
 
 function HistoryBox({action}) {
   return (
-    <div key={action.id} className={styles.history_box}
+    <div className={styles.history_box}
          style={{background: '#272335', padding: '16px', cursor: 'default'}}>
       <div style={{display: 'flex', flexDirection: 'column'}}>
         <div>Permission for <b>{action.tool_name}</b> was:</div>
@@ -125,7 +124,11 @@ export default function ActionConsole({actions, setPendingPermissions}) {
   };
 
   const handleSelection = (index, status, permissionId) => {
-    setHiddenActions((prevHiddenActions) => [...prevHiddenActions, permissionId]);
+    setHiddenActions((prevHiddenActions) => (
+      prevHiddenActions.includes(permissionId)
+        ? prevHiddenActions
+        : [...prevHiddenActions, permissionId]
+    ));
 
     const data = {
       status: status,
@@ -135,7 +138,11 @@ export default function ActionConsole({actions, setPendingPermissions}) {
     updatePermissions(permissionId, data).then((response) => {
       if (response.status === 200) {
         setPendingPermissions((prev) => Math.max((prev || 0) - 1, 0));
+      } else {
+        setHiddenActions((prevHiddenActions) => prevHiddenActions.filter((id) => id !== permissionId));
       }
+    }).catch(() => {
+      setHiddenActions((prevHiddenActions) => prevHiddenActions.filter((id) => id !== permissionId));
     });
   };
 
