@@ -4,7 +4,7 @@ import Image from 'next/image';
 import {updatePermissions} from '@/pages/api/DashboardService';
 import {formatTimeDifference} from '@/utils/utils';
 
-function ActionBox({action, index, denied, reasons, handleDeny, handleSelection, setReasons}) {
+function ActionBox({action, index, denied, reasons, handleDeny, handleSelection, setReasons, isSubmitting}) {
   const isDenied = denied[index];
 
   return (
@@ -19,6 +19,7 @@ function ActionBox({action, index, denied, reasons, handleDeny, handleSelection,
             <div>Provide Feedback <span style={{color: '#888888'}}>(Optional)</span></div>
             <input style={{marginTop: '6px'}} type="text" value={reasons[index]} placeholder="Enter your input here"
                    className="input_medium"
+                   disabled={isSubmitting}
                    onChange={(e) => {
                      const newReasons = [...reasons];
                      newReasons[index] = e.target.value;
@@ -33,19 +34,19 @@ function ActionBox({action, index, denied, reasons, handleDeny, handleSelection,
               <span className={styles.text_12_n}>Go Back</span>
             </button>
             <button onClick={() => handleSelection(index, false, action.id)} className="secondary_button mt_16"
-                    style={{background: 'transparent', border: 'none'}}>
-              <span className={styles.text_12_n}>Proceed to Deny</span>
+                    style={{background: 'transparent', border: 'none'}} disabled={isSubmitting}>
+              <span className={styles.text_12_n}>{isSubmitting ? 'Denying...' : 'Proceed to Deny'}</span>
             </button>
           </div>
         ) : (
           <div style={{display: 'inline-flex', gap: '8px'}}>
             <button onClick={() => handleSelection(index, true, action.id)} className="secondary_button mt_16"
-                    style={{paddingLeft: '10px'}}>
+                    style={{paddingLeft: '10px'}} disabled={isSubmitting}>
               <Image width={12} height={12} src="/images/check.svg" alt="check-icon"/>
-              <span className={styles.text_12_n}>Approve</span>
+              <span className={styles.text_12_n}>{isSubmitting ? 'Approving...' : 'Approve'}</span>
             </button>
             <button onClick={() => handleDeny(index)} className="secondary_button mt_16"
-                    style={{background: 'transparent', border: 'none'}}>
+                    style={{background: 'transparent', border: 'none'}} disabled={isSubmitting}>
               <Image width={16} height={16} src="/images/close.svg" alt="close-icon"/>
               <span className={styles.text_12_n}>Deny</span>
             </button>
@@ -102,10 +103,12 @@ export default function ActionConsole({actions, setPendingPermissions}) {
   const [hiddenActions, setHiddenActions] = useState([]);
   const [denied, setDenied] = useState([]);
   const [reasons, setReasons] = useState([]);
+  const [submittingActionIds, setSubmittingActionIds] = useState([]);
 
   useEffect(() => {
     if (!actions || actions.length === 0) {
       setHiddenActions([]);
+      setSubmittingActionIds([]);
       setDenied([]);
       setReasons([]);
       return;
@@ -113,6 +116,7 @@ export default function ActionConsole({actions, setPendingPermissions}) {
 
     const actionIds = new Set(actions.map((action) => action.id));
     setHiddenActions((prevHiddenActions) => prevHiddenActions.filter((id) => actionIds.has(id)));
+    setSubmittingActionIds((prevSubmitting) => prevSubmitting.filter((id) => actionIds.has(id)));
 
     // Keep local state aligned to action list length while preserving existing user input.
     setDenied((prevDenied) => actions.map((_, index) => prevDenied[index] ?? false));
@@ -128,6 +132,12 @@ export default function ActionConsole({actions, setPendingPermissions}) {
   };
 
   const handleSelection = (index, status, permissionId) => {
+    if (submittingActionIds.includes(permissionId)) {
+      return;
+    }
+
+    setSubmittingActionIds((prevSubmitting) => [...prevSubmitting, permissionId]);
+
     setHiddenActions((prevHiddenActions) => (
       prevHiddenActions.includes(permissionId)
         ? prevHiddenActions
@@ -145,8 +155,10 @@ export default function ActionConsole({actions, setPendingPermissions}) {
       } else {
         setHiddenActions((prevHiddenActions) => prevHiddenActions.filter((id) => id !== permissionId));
       }
+      setSubmittingActionIds((prevSubmitting) => prevSubmitting.filter((id) => id !== permissionId));
     }).catch(() => {
       setHiddenActions((prevHiddenActions) => prevHiddenActions.filter((id) => id !== permissionId));
+      setSubmittingActionIds((prevSubmitting) => prevSubmitting.filter((id) => id !== permissionId));
     });
   };
 
@@ -156,8 +168,10 @@ export default function ActionConsole({actions, setPendingPermissions}) {
         <div className={styles.detail_body} style={{height: 'auto'}}>
           {actions.map((action, index) => {
             if (action.status === 'PENDING' && !hiddenActions.includes(action.id)) {
+              const isSubmitting = submittingActionIds.includes(action.id);
               return (<ActionBox key={action.id} action={action} index={index} denied={denied} setReasons={setReasons}
-                                 reasons={reasons} handleDeny={handleDeny} handleSelection={handleSelection}/>);
+                                 reasons={reasons} handleDeny={handleDeny} handleSelection={handleSelection}
+                                 isSubmitting={isSubmitting}/>);
             } else if (action.status === 'APPROVED' || action.status === 'REJECTED') {
               return (<HistoryBox key={action.id} action={action}/>);
             }
