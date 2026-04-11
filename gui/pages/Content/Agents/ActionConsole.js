@@ -29,7 +29,8 @@ function ActionBox({action, index, denied, reasons, handleDeny, handleSelection,
         )}
         {isDenied ? (
           <div style={{display: 'inline-flex', gap: '8px'}}>
-            <button onClick={() => handleDeny(index)} className="secondary_button mt_16" style={{paddingLeft: '10px'}}>
+            <button onClick={() => handleDeny(index)} className="secondary_button mt_16" style={{paddingLeft: '10px'}}
+                    disabled={isSubmitting}>
               <Image width={12} height={12} src="/images/undo.svg" alt="check-icon"/>
               <span className={styles.text_12_n}>Go Back</span>
             </button>
