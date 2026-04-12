@@ -92,6 +92,53 @@
     padding-bottom: 0;
 }
 
+.workspace_layout {
+    display: flex;
+    width: 100%;
+    gap: 12px;
+}
+
+.workspace_main_panel_with_history {
+    width: 40%;
+    min-width: 0;
+}
+
+.workspace_main_panel_full {
+    width: 60%;
+    min-width: 0;
+}
+
+.workspace_side_panel {
+    width: 40%;
+    min-width: 0;
+}
+
+.workspace_tab_group {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+}
+
+.workspace_tab_group_scroll {
+    display: flex;
+    overflow-x: auto;
+    white-space: nowrap;
+    min-width: 0;
+    padding-bottom: 2px;
+}
+
+@media (max-width: 1280px) {
+    .workspace_layout {
+        flex-direction: column;
+    }
+
+    .workspace_main_panel_with_history,
+    .workspace_main_panel_full,
+    .workspace_side_panel {
+        width: 100%;
+    }
+}
+
 .tab_button {
     border: none;
     font-style: normal;

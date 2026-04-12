@@ -350,13 +350,13 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
   });
 
   return (<>
-    <div style={{display: 'flex'}}>
+    <div className={styles.workspace_layout}>
       {history && selectedRun !== null &&
         <RunHistory runs={agentExecutions} selectedRunId={selectedRun?.id} setSelectedRun={setSelectedRun}
                     setHistory={setHistory} setAgentExecutions={setAgentExecutions}/>}
-      <div style={{width: history ? '40%' : '60%'}}>
+      <div className={history ? styles.workspace_main_panel_with_history : styles.workspace_main_panel_full}>
         <div className={styles.detail_top}>
-          <div style={{display: 'flex'}}>
+          <div className={styles.workspace_tab_group}>
             {!history && selectedRun !== null &&
               <div style={{display: 'flex', alignItems: 'center', cursor: 'pointer', marginRight: '7px'}}
                    onClick={() => setHistory(true)}>
@@ -478,9 +478,9 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
             <div className={styles.detail_content}><TaskQueue selectedRunId={selectedRun?.id || 0}/></div>}
         </div>
       </div>
-      <div style={{width: '40%'}}>
+      <div className={styles.workspace_side_panel}>
         <div className={styles.detail_top}>
-          <div style={{display: 'flex', overflowX: 'scroll'}}>
+          <div className={styles.workspace_tab_group_scroll}>
             {agentDetails && ((fetchedData && fetchedData.length > 0) || agentDetails.permission_type === 'RESTRICTED') && <div>
               <button onClick={() => setRightPanel('action_console')} className={styles.tab_button}
                       style={rightPanel === 'action_console' ? {background: '#454254'} : {background: 'transparent'}}>
