@@ -329,15 +329,27 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
 
   useEffect(() => {
     const resetRunStatus = (eventData) => {
-      if (eventData.executionId === selectedRun.id) {
-        setSelectedRun((prevSelectedRun) => (
-          {...prevSelectedRun, status: eventData.status}
-        ));
+      if (!selectedRun?.id || eventData.executionId !== selectedRun.id) {
+        return;
       }
+
+      setSelectedRun((prevSelectedRun) => (
+        prevSelectedRun ? {...prevSelectedRun, status: eventData.status} : prevSelectedRun
+      ));
     };
 
     const refreshDate = () => {
-      fetchAgentScheduleComponent()
+      if (!agent?.is_scheduled) {
+        return;
+      }
+
+      getDateTime(agentId)
+        .then((response) => {
+          setAgentScheduleDetails(response.data);
+        })
+        .catch((error) => {
+          console.error('Error fetching agent data:', error);
+        });
     };
 
     EventBus.on('resetRunStatus', resetRunStatus);
@@ -347,7 +359,7 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
       EventBus.off('resetRunStatus', resetRunStatus);
       EventBus.off('refreshDate', refreshDate);
     };
-  });
+  }, [selectedRun?.id, agent?.is_scheduled, agentId]);
 
   return (<>
     <div className={styles.workspace_layout}>
