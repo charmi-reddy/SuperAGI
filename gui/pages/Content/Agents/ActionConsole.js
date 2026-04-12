@@ -4,8 +4,8 @@ import Image from 'next/image';
 import {updatePermissions} from '@/pages/api/DashboardService';
 import {formatTimeDifference} from '@/utils/utils';
 
-function ActionBox({action, index, denied, reasons, handleDeny, handleSelection, setReasons, isSubmitting}) {
-  const isDenied = denied[index];
+function ActionBox({action, denied, reasons, handleDeny, handleSelection, setReasons, isSubmitting}) {
+  const isDenied = denied[action.id] ?? false;
 
   return (
     <div className={styles.action_card}>
@@ -16,36 +16,36 @@ function ActionBox({action, index, denied, reasons, handleDeny, handleSelection,
         {isDenied && (
           <div className={styles.action_feedback}>
             <div>Provide Feedback <span style={{color: '#888888'}}>(Optional)</span></div>
-            <input type="text" value={reasons[index]} placeholder="Enter your input here"
+            <input type="text" value={reasons[action.id] ?? ''} placeholder="Enter your input here"
                    className={`input_medium ${styles.action_feedback_input}`}
                    disabled={isSubmitting}
                    onChange={(e) => {
-                     const newReasons = [...reasons];
-                     newReasons[index] = e.target.value;
+                     const newReasons = {...reasons};
+                     newReasons[action.id] = e.target.value;
                      setReasons(newReasons);
                    }}/>
           </div>
         )}
         {isDenied ? (
           <div className={styles.action_button_row}>
-            <button type="button" onClick={() => handleDeny(index)} className="secondary_button mt_16" style={{paddingLeft: '10px'}}
+            <button type="button" onClick={() => handleDeny(action.id)} className="secondary_button mt_16" style={{paddingLeft: '10px'}}
                     disabled={isSubmitting}>
               <Image width={12} height={12} src="/images/undo.svg" alt="check-icon"/>
               <span className={styles.text_12_n}>Go Back</span>
             </button>
-            <button type="button" onClick={() => handleSelection(index, false, action.id)} className="secondary_button mt_16"
+            <button type="button" onClick={() => handleSelection(false, action.id)} className="secondary_button mt_16"
                     style={{background: 'transparent', border: 'none'}} disabled={isSubmitting}>
-              <span className={styles.text_12_n}>{isSubmitting ? 'Denying...' : 'Proceed to Deny'}</span>
+              <span className={styles.text_12_n}>{isSubmitting ? 'Denying...' : 'Submit Denial'}</span>
             </button>
           </div>
         ) : (
           <div className={styles.action_button_row}>
-            <button type="button" onClick={() => handleSelection(index, true, action.id)} className="secondary_button mt_16"
+            <button type="button" onClick={() => handleSelection(true, action.id)} className="secondary_button mt_16"
                     style={{paddingLeft: '10px'}} disabled={isSubmitting}>
               <Image width={12} height={12} src="/images/check.svg" alt="check-icon"/>
               <span className={styles.text_12_n}>{isSubmitting ? 'Approving...' : 'Approve'}</span>
             </button>
-            <button type="button" onClick={() => handleDeny(index)} className="secondary_button mt_16"
+            <button type="button" onClick={() => handleDeny(action.id)} className="secondary_button mt_16"
                     style={{background: 'transparent', border: 'none'}} disabled={isSubmitting}>
               <Image width={16} height={16} src="/images/close.svg" alt="close-icon"/>
               <span className={styles.text_12_n}>Deny</span>
@@ -100,16 +100,16 @@ function HistoryBox({action}) {
 
 export default function ActionConsole({actions, setPendingPermissions}) {
   const [hiddenActions, setHiddenActions] = useState([]);
-  const [denied, setDenied] = useState([]);
-  const [reasons, setReasons] = useState([]);
+  const [denied, setDenied] = useState({});
+  const [reasons, setReasons] = useState({});
   const [submittingActionIds, setSubmittingActionIds] = useState([]);
 
   useEffect(() => {
     if (!actions || actions.length === 0) {
       setHiddenActions([]);
       setSubmittingActionIds([]);
-      setDenied([]);
-      setReasons([]);
+      setDenied({});
+      setReasons({});
       return;
     }
 
@@ -117,20 +117,31 @@ export default function ActionConsole({actions, setPendingPermissions}) {
     setHiddenActions((prevHiddenActions) => prevHiddenActions.filter((id) => actionIds.has(id)));
     setSubmittingActionIds((prevSubmitting) => prevSubmitting.filter((id) => actionIds.has(id)));
 
-    // Keep local state aligned to action list length while preserving existing user input.
-    setDenied((prevDenied) => actions.map((_, index) => prevDenied[index] ?? false));
-    setReasons((prevReasons) => actions.map((_, index) => prevReasons[index] ?? ''));
+    // Keep local state aligned to action ids while preserving existing user input.
+    setDenied((prevDenied) => {
+      const nextDenied = {};
+      actions.forEach((action) => {
+        nextDenied[action.id] = prevDenied[action.id] ?? false;
+      });
+      return nextDenied;
+    });
+    setReasons((prevReasons) => {
+      const nextReasons = {};
+      actions.forEach((action) => {
+        nextReasons[action.id] = prevReasons[action.id] ?? '';
+      });
+      return nextReasons;
+    });
   }, [actions]);
 
-  const handleDeny = (index) => {
-    setDenied((prevDenied) => {
-      const newDeniedState = [...prevDenied];
-      newDeniedState[index] = !newDeniedState[index];
-      return newDeniedState;
-    });
+  const handleDeny = (actionId) => {
+    setDenied((prevDenied) => ({
+      ...prevDenied,
+      [actionId]: !(prevDenied[actionId] ?? false),
+    }));
   };
 
-  const handleSelection = (index, status, permissionId) => {
+  const handleSelection = async (status, permissionId) => {
     if (submittingActionIds.includes(permissionId)) {
       return;
     }
@@ -143,34 +154,45 @@ export default function ActionConsole({actions, setPendingPermissions}) {
         : [...prevHiddenActions, permissionId]
     ));
 
-    const normalizedFeedback = (reasons[index] || '').trim();
+    const normalizedFeedback = (reasons[permissionId] || '').trim();
 
     const data = {
       status: status,
       user_feedback: normalizedFeedback.length > 0 ? normalizedFeedback : null,
     };
 
-    updatePermissions(permissionId, data).then((response) => {
+    try {
+      const response = await updatePermissions(permissionId, data);
       if (response.status === 200) {
         setPendingPermissions((prev) => Math.max((prev || 0) - 1, 0));
       } else {
         setHiddenActions((prevHiddenActions) => prevHiddenActions.filter((id) => id !== permissionId));
       }
-      setSubmittingActionIds((prevSubmitting) => prevSubmitting.filter((id) => id !== permissionId));
-    }).catch(() => {
+    } catch {
       setHiddenActions((prevHiddenActions) => prevHiddenActions.filter((id) => id !== permissionId));
+    } finally {
       setSubmittingActionIds((prevSubmitting) => prevSubmitting.filter((id) => id !== permissionId));
-    });
+      setDenied((prevDenied) => {
+        const nextDenied = {...prevDenied};
+        delete nextDenied[permissionId];
+        return nextDenied;
+      });
+      setReasons((prevReasons) => {
+        const nextReasons = {...prevReasons};
+        delete nextReasons[permissionId];
+        return nextReasons;
+      });
+    }
   };
 
   return (
     <>
       {actions && actions.length > 0 ? (
         <div className={styles.detail_body} style={{height: 'auto'}}>
-          {actions.map((action, index) => {
+          {actions.map((action) => {
             if (action.status === 'PENDING' && !hiddenActions.includes(action.id)) {
               const isSubmitting = submittingActionIds.includes(action.id);
-              return (<ActionBox key={action.id} action={action} index={index} denied={denied} setReasons={setReasons}
+              return (<ActionBox key={action.id} action={action} denied={denied} setReasons={setReasons}
                                  reasons={reasons} handleDeny={handleDeny} handleSelection={handleSelection}
                                  isSubmitting={isSubmitting}/>);
             } else if (action.status === 'APPROVED' || action.status === 'REJECTED') {
