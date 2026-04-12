@@ -176,6 +176,43 @@
     margin-bottom: 7px;
 }
 
+.action_card {
+    width: 100%;
+    padding: 16px;
+    color: white;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 14px;
+    border-radius: 8px;
+    cursor: default;
+    margin-bottom: 7px;
+    background: #272335;
+    box-sizing: border-box;
+}
+
+.action_card_content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.action_button_row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.action_feedback {
+    display: flex;
+    flex-direction: column;
+}
+
+.action_feedback_input {
+    width: 100%;
+    box-sizing: border-box;
+}
+
 .notification_bubble {
     width: 14px;
     height: 14px;

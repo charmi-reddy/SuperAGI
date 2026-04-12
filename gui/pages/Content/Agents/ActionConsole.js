@@ -8,17 +8,16 @@ function ActionBox({action, index, denied, reasons, handleDeny, handleSelection,
   const isDenied = denied[index];
 
   return (
-    <div className={styles.history_box}
-         style={{background: '#272335', padding: '16px', cursor: 'default'}}>
-      <div style={{display: 'flex', flexDirection: 'column'}}>
+    <div className={styles.action_card}>
+      <div className={styles.action_card_content}>
         {action.question && (<div className={styles.feed_title}>{action.question}</div>)}
         {!action.question && (<div>Tool <b>{action.tool_name}</b> is requesting permissions</div>)}
 
         {isDenied && (
-          <div style={{marginTop: '26px'}}>
+          <div className={styles.action_feedback}>
             <div>Provide Feedback <span style={{color: '#888888'}}>(Optional)</span></div>
-            <input style={{marginTop: '6px'}} type="text" value={reasons[index]} placeholder="Enter your input here"
-                   className="input_medium"
+            <input type="text" value={reasons[index]} placeholder="Enter your input here"
+                   className={`input_medium ${styles.action_feedback_input}`}
                    disabled={isSubmitting}
                    onChange={(e) => {
                      const newReasons = [...reasons];
@@ -28,25 +27,25 @@ function ActionBox({action, index, denied, reasons, handleDeny, handleSelection,
           </div>
         )}
         {isDenied ? (
-          <div style={{display: 'inline-flex', gap: '8px'}}>
-            <button onClick={() => handleDeny(index)} className="secondary_button mt_16" style={{paddingLeft: '10px'}}
+          <div className={styles.action_button_row}>
+            <button type="button" onClick={() => handleDeny(index)} className="secondary_button mt_16" style={{paddingLeft: '10px'}}
                     disabled={isSubmitting}>
               <Image width={12} height={12} src="/images/undo.svg" alt="check-icon"/>
               <span className={styles.text_12_n}>Go Back</span>
             </button>
-            <button onClick={() => handleSelection(index, false, action.id)} className="secondary_button mt_16"
+            <button type="button" onClick={() => handleSelection(index, false, action.id)} className="secondary_button mt_16"
                     style={{background: 'transparent', border: 'none'}} disabled={isSubmitting}>
               <span className={styles.text_12_n}>{isSubmitting ? 'Denying...' : 'Proceed to Deny'}</span>
             </button>
           </div>
         ) : (
-          <div style={{display: 'inline-flex', gap: '8px'}}>
-            <button onClick={() => handleSelection(index, true, action.id)} className="secondary_button mt_16"
+          <div className={styles.action_button_row}>
+            <button type="button" onClick={() => handleSelection(index, true, action.id)} className="secondary_button mt_16"
                     style={{paddingLeft: '10px'}} disabled={isSubmitting}>
               <Image width={12} height={12} src="/images/check.svg" alt="check-icon"/>
               <span className={styles.text_12_n}>{isSubmitting ? 'Approving...' : 'Approve'}</span>
             </button>
-            <button onClick={() => handleDeny(index)} className="secondary_button mt_16"
+            <button type="button" onClick={() => handleDeny(index)} className="secondary_button mt_16"
                     style={{background: 'transparent', border: 'none'}} disabled={isSubmitting}>
               <Image width={16} height={16} src="/images/close.svg" alt="close-icon"/>
               <span className={styles.text_12_n}>Deny</span>
@@ -67,17 +66,16 @@ function ActionBox({action, index, denied, reasons, handleDeny, handleSelection,
 
 function HistoryBox({action}) {
   return (
-    <div className={styles.history_box}
-         style={{background: '#272335', padding: '16px', cursor: 'default'}}>
-      <div style={{display: 'flex', flexDirection: 'column'}}>
+    <div className={styles.action_card}>
+      <div className={styles.action_card_content}>
         <div>Permission for <b>{action.tool_name}</b> was:</div>
         {action.status && action.status === 'APPROVED' ? (
-          <button className="history_permission mt_16">
+          <button type="button" className="history_permission mt_16">
             <Image width={12} height={12} src="/images/check.svg" alt="check-icon"/>
             <span className={styles.text_12_n}>Approved</span>
           </button>
         ) : (
-          <button className="history_permission mt_16">
+          <button type="button" className="history_permission mt_16">
             <Image width={14} height={14} src="/images/close.svg" alt="close-icon"/>
             <span className={styles.text_12_n}>Denied</span>
           </button>
