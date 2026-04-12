@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useMemo} from 'react';
 import styles from './Agents.module.css';
 import Image from 'next/image';
 import {updatePermissions} from '@/pages/api/DashboardService';
@@ -111,6 +111,8 @@ export default function ActionConsole({actions, setPendingPermissions}) {
   const [denied, setDenied] = useState({});
   const [reasons, setReasons] = useState({});
   const [submittingActionIds, setSubmittingActionIds] = useState([]);
+  const hiddenActionIdSet = useMemo(() => new Set(hiddenActions), [hiddenActions]);
+  const submittingActionIdSet = useMemo(() => new Set(submittingActionIds), [submittingActionIds]);
 
   useEffect(() => {
     if (!actions || actions.length === 0) {
@@ -150,7 +152,7 @@ export default function ActionConsole({actions, setPendingPermissions}) {
   };
 
   const handleSelection = async (status, permissionId) => {
-    if (submittingActionIds.includes(permissionId)) {
+    if (submittingActionIdSet.has(permissionId)) {
       return;
     }
 
@@ -190,8 +192,8 @@ export default function ActionConsole({actions, setPendingPermissions}) {
       {actions && actions.length > 0 ? (
         <div className={styles.detail_body} style={{height: 'auto'}}>
           {actions.map((action) => {
-            if (action.status === 'PENDING' && !hiddenActions.includes(action.id)) {
-              const isSubmitting = submittingActionIds.includes(action.id);
+            if (action.status === 'PENDING' && !hiddenActionIdSet.has(action.id)) {
+              const isSubmitting = submittingActionIdSet.has(action.id);
               return (<ActionBox key={action.id} action={action} denied={denied} setReasons={setReasons}
                                  reasons={reasons} handleDeny={handleDeny} handleSelection={handleSelection}
                                  isSubmitting={isSubmitting}/>);
