@@ -4,6 +4,14 @@ import Image from 'next/image';
 import {updatePermissions} from '@/pages/api/DashboardService';
 import {formatTimeDifference} from '@/utils/utils';
 
+const removeIdFromList = (items, targetId) => items.filter((id) => id !== targetId);
+
+const removeKeyFromObject = (source, keyToRemove) => {
+  const nextObject = {...source};
+  delete nextObject[keyToRemove];
+  return nextObject;
+};
+
 function ActionBox({action, denied, reasons, handleDeny, handleSelection, setReasons, isSubmitting}) {
   const isDenied = denied[action.id] ?? false;
 
@@ -166,22 +174,14 @@ export default function ActionConsole({actions, setPendingPermissions}) {
       if (response.status === 200) {
         setPendingPermissions((prev) => Math.max((prev || 0) - 1, 0));
       } else {
-        setHiddenActions((prevHiddenActions) => prevHiddenActions.filter((id) => id !== permissionId));
+        setHiddenActions((prevHiddenActions) => removeIdFromList(prevHiddenActions, permissionId));
       }
     } catch {
-      setHiddenActions((prevHiddenActions) => prevHiddenActions.filter((id) => id !== permissionId));
+      setHiddenActions((prevHiddenActions) => removeIdFromList(prevHiddenActions, permissionId));
     } finally {
-      setSubmittingActionIds((prevSubmitting) => prevSubmitting.filter((id) => id !== permissionId));
-      setDenied((prevDenied) => {
-        const nextDenied = {...prevDenied};
-        delete nextDenied[permissionId];
-        return nextDenied;
-      });
-      setReasons((prevReasons) => {
-        const nextReasons = {...prevReasons};
-        delete nextReasons[permissionId];
-        return nextReasons;
-      });
+      setSubmittingActionIds((prevSubmitting) => removeIdFromList(prevSubmitting, permissionId));
+      setDenied((prevDenied) => removeKeyFromObject(prevDenied, permissionId));
+      setReasons((prevReasons) => removeKeyFromObject(prevReasons, permissionId));
     }
   };
 
