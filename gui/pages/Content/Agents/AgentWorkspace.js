@@ -224,6 +224,11 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
   }
 
   const updateRunStatus = (status) => {
+    if (!selectedRun?.id) {
+      setDropdown(false);
+      return;
+    }
+
     const executionData = {"status": status};
 
     updateExecution(selectedRun.id, executionData)
