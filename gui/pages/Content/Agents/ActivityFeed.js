@@ -46,7 +46,7 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
     if (agent?.is_scheduled && !agent?.is_running) {
       fetchDateTime();
     }
-  }, []);
+  }, [agent?.id, agent?.is_scheduled, agent?.is_running]);
 
   useEffect(() => {
     if (feeds.length !== prevFeedsLength) {
@@ -115,7 +115,7 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
       EventBus.off('updateRunStatus', updateRunStatus);
       EventBus.off('refreshDate', refreshDate);
     };
-  });
+  }, [selectedRunId, agent?.id]);
 
   return (<>
     <div style={{overflowY: "auto", maxHeight: '80vh', position: 'relative'}} ref={feedContainerRef}>
