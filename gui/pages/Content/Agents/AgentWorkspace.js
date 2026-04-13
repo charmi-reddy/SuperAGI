@@ -149,23 +149,29 @@ export default function AgentWorkspace({env, agentId, agentName, selectedView, a
   }
 
   const handleCreateRun = () => {
+    const normalizedGoals = (goals && goals.length > 0) ? goals : (agentDetails?.goal || []);
+    const normalizedInstructions = (instructions && instructions.length > 0)
+      ? instructions
+      : (agentDetails?.instruction || []);
+
     if (runName.replace(/\s/g, '') === '') {
       toast.error("Run name can't be blank", {autoClose: 1800});
       return
     }
-    setGoals(goals.length< 0 ? agentDetails.goal : goals)
-    setInstructions(instructions.length < 0 ? agentDetails.instruction : instructions)
 
-    if (goals.length <= 0) {
+    if (normalizedGoals.length <= 0) {
       toast.error("Agent needs to have goals", {autoClose: 1800});
       return
     }
 
+    setGoals(normalizedGoals);
+    setInstructions(normalizedInstructions);
+
     const executionData = {
       "agent_id": agentId,
       "name": runName,
-      "goal": goals,
-      "instruction": instructions
+      "goal": normalizedGoals,
+      "instruction": normalizedInstructions
     }
 
     addExecution(executionData)
