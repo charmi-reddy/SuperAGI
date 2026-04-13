@@ -10,6 +10,7 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
   const [loadingText, setLoadingText] = useState("Thinking");
   const [feeds, setFeeds] = useState([]);
   const feedContainerRef = useRef(null);
+  const latestFeedRequestRef = useRef(0);
   const [runStatus, setRunStatus] = useState("CREATED");
   const [prevFeedsLength, setPrevFeedsLength] = useState(0);
   const [scheduleDate, setScheduleDate] = useState(null);
@@ -79,9 +80,16 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
 
   function fetchFeeds() {
     if (selectedRunId !== null) {
+      const requestId = latestFeedRequestRef.current + 1;
+      latestFeedRequestRef.current = requestId;
+
       setIsLoading(true);
       getExecutionFeeds(selectedRunId)
         .then((response) => {
+          if (requestId !== latestFeedRequestRef.current) {
+            return;
+          }
+
           const data = response.data;
           setFeeds(data.feeds);
           setErrorMsg(data.errors)
@@ -92,6 +100,10 @@ export default function ActivityFeed({selectedRunId, selectedView, setFetchedDat
           setIsLoading(false); //add this line
         })
         .catch((error) => {
+          if (requestId !== latestFeedRequestRef.current) {
+            return;
+          }
+
           console.error('Error fetching execution feeds:', error);
           setIsLoading(false); // and this line
         });
