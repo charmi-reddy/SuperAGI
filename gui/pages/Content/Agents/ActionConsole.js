@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useMemo} from 'react';
+import React, {useState, useEffect, useMemo, useRef} from 'react';
 import styles from './Agents.module.css';
 import Image from 'next/image';
 import {updatePermissions} from '@/pages/api/DashboardService';
@@ -111,6 +111,7 @@ export default function ActionConsole({actions, setPendingPermissions}) {
   const [denied, setDenied] = useState({});
   const [reasons, setReasons] = useState({});
   const [submittingActionIds, setSubmittingActionIds] = useState([]);
+  const submittingActionRef = useRef(new Set());
   const hiddenActionIdSet = useMemo(() => new Set(hiddenActions), [hiddenActions]);
   const submittingActionIdSet = useMemo(() => new Set(submittingActionIds), [submittingActionIds]);
 
@@ -118,6 +119,7 @@ export default function ActionConsole({actions, setPendingPermissions}) {
     if (!actions || actions.length === 0) {
       setHiddenActions([]);
       setSubmittingActionIds([]);
+      submittingActionRef.current = new Set();
       setDenied({});
       setReasons({});
       return;
@@ -126,6 +128,9 @@ export default function ActionConsole({actions, setPendingPermissions}) {
     const actionIds = new Set(actions.map((action) => action.id));
     setHiddenActions((prevHiddenActions) => prevHiddenActions.filter((id) => actionIds.has(id)));
     setSubmittingActionIds((prevSubmitting) => prevSubmitting.filter((id) => actionIds.has(id)));
+    submittingActionRef.current = new Set(
+      [...submittingActionRef.current].filter((id) => actionIds.has(id))
+    );
 
     // Keep local state aligned to action ids while preserving existing user input.
     setDenied((prevDenied) => {
@@ -152,11 +157,15 @@ export default function ActionConsole({actions, setPendingPermissions}) {
   };
 
   const handleSelection = async (status, permissionId) => {
-    if (submittingActionIdSet.has(permissionId)) {
+    if (submittingActionRef.current.has(permissionId) || submittingActionIdSet.has(permissionId)) {
       return;
     }
 
-    setSubmittingActionIds((prevSubmitting) => [...prevSubmitting, permissionId]);
+    submittingActionRef.current.add(permissionId);
+
+    setSubmittingActionIds((prevSubmitting) => (
+      prevSubmitting.includes(permissionId) ? prevSubmitting : [...prevSubmitting, permissionId]
+    ));
 
     setHiddenActions((prevHiddenActions) => (
       prevHiddenActions.includes(permissionId)
@@ -181,6 +190,7 @@ export default function ActionConsole({actions, setPendingPermissions}) {
     } catch {
       setHiddenActions((prevHiddenActions) => removeIdFromList(prevHiddenActions, permissionId));
     } finally {
+      submittingActionRef.current.delete(permissionId);
       setSubmittingActionIds((prevSubmitting) => removeIdFromList(prevSubmitting, permissionId));
       setDenied((prevDenied) => removeKeyFromObject(prevDenied, permissionId));
       setReasons((prevReasons) => removeKeyFromObject(prevReasons, permissionId));
