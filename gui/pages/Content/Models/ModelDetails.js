@@ -12,19 +12,31 @@ export default function ModelDetails({modelId, modelName}){
     const [loadingText, setLoadingText] = useState("Loading Models");
 
     useEffect(() => {
+        let isMounted = true;
+
         loadingTextEffect('Loading Models', setLoadingText, 500);
+        setIsLoading(true);
+
         const fetchModelDetails = async () => {
             try {
                 const response = await fetchModel(modelId);
-                setModelDetails(response.data)
-                setIsLoading(false)
+                if (isMounted) {
+                    setModelDetails(response.data)
+                    setIsLoading(false)
+                }
             } catch(error) {
                 console.log(`Error Fetching the Details of the Model ${modelName}`, error)
+                if (isMounted) {
+                    setIsLoading(false)
+                }
             }
         };
 
         fetchModelDetails().then().catch();
-    },[])
+        return () => {
+            isMounted = false;
+        };
+    },[modelId, modelName])
 
     return(
         <div id="model_details" className="col-12 padding_5 overflowY_auto h_calc92">
