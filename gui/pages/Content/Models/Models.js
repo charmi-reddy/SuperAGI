@@ -6,8 +6,7 @@ export default function Models({sendModelData, models}){
 
     const handleModelSelect = (model) => {
         getUserClick('Existing Model Clicked', {})
-        model.contentType = 'Model'
-        sendModelData(model)
+        sendModelData({...model, contentType: 'Model'})
     }
 
     return(
