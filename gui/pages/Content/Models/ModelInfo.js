@@ -25,7 +25,7 @@ export default function ModelInfo({modelDetails}){
                     </div>}
 
                     <span className="mt_24">Token Limit</span>
-                    <input className="input_medium mt_8" type="number" placeholder="Enter Model Token Limit" value={modelData.token_limit || ''} disabled/>
+                    <input className="input_medium mt_8" type="number" placeholder="Enter Model Token Limit" value={modelData.token_limit || ''} disabled readOnly/>
                 </div>
                 <div className="col-3" />
             </div>
