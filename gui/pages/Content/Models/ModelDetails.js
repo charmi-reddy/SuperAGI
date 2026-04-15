@@ -14,6 +14,13 @@ export default function ModelDetails({modelId, modelName}){
     useEffect(() => {
         let isMounted = true;
 
+        if (!modelId) {
+            setIsLoading(false)
+            return () => {
+                isMounted = false;
+            };
+        }
+
         loadingTextEffect('Loading Models', setLoadingText, 500);
         setIsLoading(true);
 
