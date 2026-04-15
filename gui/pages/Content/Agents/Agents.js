@@ -121,7 +121,7 @@ export default function Agents({sendAgentData, agents}) {
         {hasAgents ? <div className="vertical_selection_scroll w_100">
           {visibleAgents.length > 0 ? visibleAgents.map((agent) => (
             <div key={agent.id}>
-              <button type="button" className={`agent_box w_100 ${styles.agent_row_button}`} onClick={() => sendAgentData(agent)}>
+              <button type="button" className={`agent_box w_100 ${styles.agent_row_button}`} onClick={() => sendAgentData(agent)} aria-label={`Open agent ${agent.name}`}>
                 {agent?.is_running && <Image width={14} height={14} className="mix_blend_mode" src="/images/loading.gif" alt="active-icon"/>}
                 <div className="text_ellipsis"><span className="agent_text text_ellipsis">{agent.name}</span></div>
                 {agent?.is_scheduled && <Image className="ml_4" width={17} height={17} src="/images/event_repeat.svg" alt="check-icon"/>}
