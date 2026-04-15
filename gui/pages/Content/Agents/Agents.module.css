@@ -577,6 +577,8 @@
     background: transparent;
     text-align: left;
     width: 100%;
+    cursor: pointer;
+    padding: 0;
 }
 
 .modal_info_class{
