@@ -95,7 +95,9 @@ class ToolOutputHandler:
         if self.memory is not None:
             try:
                 data = json.loads(assistant_reply)
-                task_description = data['thoughts']['text']
+                task_description = data.get('thoughts', {}).get('text', '')
+                if not task_description:
+                    return
                 final_tool_response = tool_response_result
                 prompt = task_description + final_tool_response
                 text_splitter = TokenTextSplitter(chunk_size=1024, chunk_overlap=10)
