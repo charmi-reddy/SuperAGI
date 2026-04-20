@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from superagi.lib.logger import logger
 
 from superagi.helper.webpage_extractor import WebpageExtractor
+from urllib.parse import urlparse
 
 
 class GoogleSearchWrap:
@@ -95,6 +96,10 @@ class GoogleSearchWrap:
                 # while content == "" and attempts < 2:
                 #     attempts += 1
                 #     content = self.extractor.extract_with_3k(links[i])
+                parsed_link = urlparse(links[i])
+                if parsed_link.scheme not in {"http", "https"} or not parsed_link.netloc:
+                    logger.warning(f"Skipping unsafe search result URL: {links[i]}")
+                    continue
                 content = self.extractor.extract_with_bs4(links[i])
                 max_length = len(' '.join(content.split(" ")[:500]))
                 content = content[:max_length]
