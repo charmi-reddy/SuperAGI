@@ -11,6 +11,7 @@ import time
 import random
 from lxml import html
 from superagi.lib.logger import logger
+from urllib.parse import urlparse
 
 USER_AGENTS = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
@@ -46,6 +47,9 @@ class WebpageExtractor:
             str: The extracted text.
         """
         try:
+            parsed_url = urlparse(url)
+            if parsed_url.scheme not in {"http", "https"} or not parsed_url.netloc:
+                return "Error: Only http and https URLs are allowed"
             if url.lower().endswith(".pdf"):
                 response = requests.get(url)
                 response.raise_for_status()
@@ -98,6 +102,9 @@ class WebpageExtractor:
         }
 
         try:
+            parsed_url = urlparse(url)
+            if parsed_url.scheme not in {"http", "https"} or not parsed_url.netloc:
+                return "Error: Only http and https URLs are allowed"
             response = requests.get(url, headers=headers, timeout=10)
             if response.status_code == 200:
                 soup = BeautifulSoup(response.text, 'html.parser')
@@ -136,6 +143,9 @@ class WebpageExtractor:
             str: The extracted text.
         """
         try:
+            parsed_url = urlparse(url)
+            if parsed_url.scheme not in {"http", "https"} or not parsed_url.netloc:
+                return "Error: Only http and https URLs are allowed"
             config = Config()
             config.browser_user_agent = random.choice(USER_AGENTS)
             config.request_timeout = 10
