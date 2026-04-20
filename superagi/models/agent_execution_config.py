@@ -107,7 +107,17 @@ class AgentExecutionConfiguration(DBBaseModel):
         """
 
         if key == "goal" or key == "instruction" or key == "tools":
-            return eval(value)
+            try:
+                return cls._safe_parse(value)
+            except (ValueError, SyntaxError):
+                return value
+
+    @staticmethod
+    def _safe_parse(value):
+        try:
+            return json.loads(value)
+        except (TypeError, json.JSONDecodeError):
+            return ast.literal_eval(value)
 
     @classmethod
     def build_agent_execution_config(cls, session, agent, results_agent, results_agent_execution, total_calls, total_tokens):
@@ -120,20 +130,20 @@ class AgentExecutionConfiguration(DBBaseModel):
 
         # Construct the response
         if 'goal' in results_agent_dict:
-            results_agent_dict['goal'] = eval(results_agent_dict['goal'])
+            results_agent_dict['goal'] = cls._safe_parse(results_agent_dict['goal']) if isinstance(results_agent_dict['goal'], str) else results_agent_dict['goal']
 
         if "toolkits" in results_agent_dict:
             results_agent_dict["toolkits"] = list(ast.literal_eval(results_agent_dict["toolkits"]))
 
         if 'tools' in results_agent_dict:
-            results_agent_dict["tools"] = list(ast.literal_eval(results_agent_dict["tools"]))
+            results_agent_dict["tools"] = list(cls._safe_parse(results_agent_dict["tools"]))
             tools = session.query(Tool).filter(Tool.id.in_(results_agent_dict["tools"])).all()
             results_agent_dict["tools"] = tools
         if 'instruction' in results_agent_dict:
-            results_agent_dict['instruction'] = eval(results_agent_dict['instruction'])
+            results_agent_dict['instruction'] = cls._safe_parse(results_agent_dict['instruction']) if isinstance(results_agent_dict['instruction'], str) else results_agent_dict['instruction']
 
         if 'constraints' in results_agent_dict:
-            results_agent_dict['constraints'] = eval(results_agent_dict['constraints'])
+            results_agent_dict['constraints'] = cls._safe_parse(results_agent_dict['constraints']) if isinstance(results_agent_dict['constraints'], str) else results_agent_dict['constraints']
 
         results_agent_dict["name"] = agent.name
         agent_workflow = AgentWorkflow.find_by_id(session, agent.agent_workflow_id)
@@ -158,20 +168,20 @@ class AgentExecutionConfiguration(DBBaseModel):
             
         # Construct the response
         if 'goal' in results_agent_dict:
-            results_agent_dict['goal'] = eval(results_agent_dict['goal'])
+            results_agent_dict['goal'] = cls._safe_parse(results_agent_dict['goal']) if isinstance(results_agent_dict['goal'], str) else results_agent_dict['goal']
 
         if "toolkits" in results_agent_dict:
             results_agent_dict["toolkits"] = list(ast.literal_eval(results_agent_dict["toolkits"]))
 
         if 'tools' in results_agent_dict:
-            results_agent_dict["tools"] = list(ast.literal_eval(results_agent_dict["tools"]))
+            results_agent_dict["tools"] = list(cls._safe_parse(results_agent_dict["tools"]))
             tools = session.query(Tool).filter(Tool.id.in_(results_agent_dict["tools"])).all()
             results_agent_dict["tools"] = tools
         if 'instruction' in results_agent_dict:
-            results_agent_dict['instruction'] = eval(results_agent_dict['instruction'])
+            results_agent_dict['instruction'] = cls._safe_parse(results_agent_dict['instruction']) if isinstance(results_agent_dict['instruction'], str) else results_agent_dict['instruction']
 
         if 'constraints' in results_agent_dict:
-            results_agent_dict['constraints'] = eval(results_agent_dict['constraints'])
+            results_agent_dict['constraints'] = cls._safe_parse(results_agent_dict['constraints']) if isinstance(results_agent_dict['constraints'], str) else results_agent_dict['constraints']
 
         results_agent_dict["name"] = agent.name
         agent_workflow = AgentWorkflow.find_by_id(session, agent.agent_workflow_id)
