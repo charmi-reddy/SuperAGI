@@ -221,6 +221,13 @@ class AgentTemplate(DBBaseModel):
             else:
                 return None
         elif key == "goal" or key == "constraints" or key == "instruction":
-            return eval(value)
+            try:
+                return json.loads(value)
+            except (TypeError, json.JSONDecodeError):
+                return ast.literal_eval(value)
         elif key == "tools":
-            return [str(x) for x in eval(value)]
+            try:
+                parsed_value = json.loads(value)
+            except (TypeError, json.JSONDecodeError):
+                parsed_value = ast.literal_eval(value)
+            return [str(x) for x in parsed_value]
