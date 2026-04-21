@@ -8,6 +8,7 @@ from superagi.models.base_model import DBBaseModel
 
 marketplace_url = "https://app.superagi.com/api"
 # marketplace_url = "http://localhost:8001"
+MARKETPLACE_TIMEOUT = 10
 
 class Knowledges(DBBaseModel):
     """
@@ -47,7 +48,7 @@ class Knowledges(DBBaseModel):
         headers = {'Content-Type': 'application/json'}
         response = requests.get(
             marketplace_url + f"/knowledges/marketplace/list/{str(page)}",
-            headers=headers, timeout=10)
+            headers=headers, timeout=MARKETPLACE_TIMEOUT)
         if response.status_code == 200:
             return response.json()
         else:
@@ -81,7 +82,7 @@ class Knowledges(DBBaseModel):
         headers = {'Content-Type': 'application/json'}
         response = requests.get(
             marketplace_url + f"/knowledges/marketplace/details/{knowledge_name}",
-            headers=headers, timeout=10)
+            headers=headers, timeout=MARKETPLACE_TIMEOUT)
         if response.status_code == 200:
             return response.json()
         else:
