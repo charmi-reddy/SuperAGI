@@ -8,6 +8,7 @@ from superagi.models.base_model import DBBaseModel
 
 marketplace_url = "https://app.superagi.com/api"
 # marketplace_url = "http://localhost:8001"
+MARKETPLACE_TIMEOUT = 10
 
 class Vectordbs(DBBaseModel):
     """
@@ -44,7 +45,7 @@ class Vectordbs(DBBaseModel):
         headers = {'Content-Type': 'application/json'}
         response = requests.get(
             marketplace_url + f"/vector_dbs/marketplace/list",
-            headers=headers, timeout=10)
+            headers=headers, timeout=MARKETPLACE_TIMEOUT)
         if response.status_code == 200:
             return response.json()
         else:
