@@ -8,6 +8,7 @@ from superagi.models.tool import Tool
 
 marketplace_url = "https://app.superagi.com/api"
 # marketplace_url = "http://localhost:8001"
+MARKETPLACE_TIMEOUT = 10
 
 
 class Toolkit(DBBaseModel):
@@ -92,7 +93,7 @@ class Toolkit(DBBaseModel):
         headers = {'Content-Type': 'application/json'}
         response = requests.get(
             marketplace_url + f"/toolkits/marketplace/list/{str(page)}",
-            headers=headers, timeout=10)
+            headers=headers, timeout=MARKETPLACE_TIMEOUT)
         if response.status_code == 200:
             return response.json()
         else:
@@ -105,7 +106,7 @@ class Toolkit(DBBaseModel):
         toolkit_name = toolkit_name.replace(' ', '%20')
         response = requests.get(
             marketplace_url + f"/toolkits/marketplace/{search_str}/{toolkit_name}",
-            headers=headers, timeout=10)
+            headers=headers, timeout=MARKETPLACE_TIMEOUT)
         if response.status_code == 200:
             return response.json()
         else:
