@@ -10,8 +10,7 @@ from superagi.models.base_model import DBBaseModel
 from superagi.models.workflows.iteration_workflow import IterationWorkflow
 
 marketplace_url = "https://app.superagi.com/api/"
-# marketplace_url = "http://localhost:8001/"
-
+# marketplace_url = "http://localhost:8001/"MARKETPLACE_TIMEOUT = 10
 
 class AgentTemplate(DBBaseModel):
     """
@@ -118,7 +117,7 @@ class AgentTemplate(DBBaseModel):
         headers = {'Content-Type': 'application/json'}
         response = requests.get(
             marketplace_url + "agent_templates/marketplace/list?search=" + search_str + "&page=" + str(page),
-            headers=headers, timeout=10)
+            headers=headers, timeout=MARKETPLACE_TIMEOUT)
         if response.status_code == 200:
             return response.json()
         else:
@@ -139,7 +138,7 @@ class AgentTemplate(DBBaseModel):
         headers = {'Content-Type': 'application/json'}
         response = requests.get(
             marketplace_url + "agent_templates/marketplace/template_details/" + str(agent_template_id),
-            headers=headers, timeout=10)
+            headers=headers, timeout=MARKETPLACE_TIMEOUT)
         if response.status_code == 200:
             return response.json()
         else:
