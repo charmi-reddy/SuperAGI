@@ -51,7 +51,7 @@ class WebpageExtractor:
             if parsed_url.scheme not in {"http", "https"} or not parsed_url.netloc:
                 return "Error: Only http and https URLs are allowed"
             if url.lower().endswith(".pdf"):
-                response = requests.get(url)
+                response = requests.get(url, timeout=10)
                 response.raise_for_status()
 
                 with BytesIO(response.content) as pdf_data:
@@ -151,7 +151,7 @@ class WebpageExtractor:
             config.request_timeout = 10
             session = HTMLSession()
 
-            response = session.get(url)
+            response = session.get(url, timeout=config.request_timeout)
             response.html.render(timeout=config.request_timeout)
             html_content = response.html.html
 
