@@ -38,6 +38,8 @@ class Tool(DBBaseModel):
         return f"Tool(id={self.id}, name='{self.name}',description='{self.description}' folder_name='{self.folder_name}'," \
                f" file_name = {self.file_name}, class_name='{self.class_name}, toolkit_id={self.toolkit_id}')"
 
+    __str__ = __repr__
+
     def to_dict(self):
         """
         Convert the Tool instance to a dictionary.
