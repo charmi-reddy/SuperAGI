@@ -30,6 +30,8 @@ class KnowledgeConfigs(DBBaseModel):
             str: String representation of the Knowledge Configuration.
         """
         return f"KnowledgeConfiguration(id={self.id}, knowledge_id={self.knowledge_id}, key={self.key}, value={self.value})"
+
+    __str__ = __repr__
     
     @classmethod
     def fetch_knowledge_config_details_marketplace(cls, knowledge_id: int):
