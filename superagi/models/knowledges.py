@@ -41,7 +41,10 @@ class Knowledges(DBBaseModel):
 
         """
         return f"Knowledge(id={self.id}, name='{self.name}', description='{self.description}', " \
-               f"vector_db_index_id={self.vector_db_index_id}), organisation_id={self.organisation_id}, contributed_by={self.contributed_by})"
+               f"vector_db_index_id={self.vector_db_index_id}, organisation_id={self.organisation_id}, " \
+               f"contributed_by={self.contributed_by})"
+
+    __str__ = __repr__
 
     @classmethod
     def fetch_marketplace_list(cls, page):
