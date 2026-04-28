@@ -10,7 +10,8 @@ from superagi.models.base_model import DBBaseModel
 from superagi.models.workflows.iteration_workflow import IterationWorkflow
 
 marketplace_url = "https://app.superagi.com/api/"
-# marketplace_url = "http://localhost:8001/"MARKETPLACE_TIMEOUT = 10
+# marketplace_url = "http://localhost:8001/"
+MARKETPLACE_TIMEOUT = 10
 
 class AgentTemplate(DBBaseModel):
     """
@@ -44,6 +45,8 @@ class AgentTemplate(DBBaseModel):
 
         return f"AgentTemplate(id={self.id}, name='{self.name}', " \
                f"description='{self.description}')"
+
+    __str__ = __repr__
 
     def to_dict(self):
         """
