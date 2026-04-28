@@ -39,6 +39,8 @@ class AgentExecutionConfiguration(DBBaseModel):
         return f"AgentExecutionConfig(id={self.id}, agent_execution_id='{self.agent_execution_id}', " \
                f"key='{self.key}', value='{self.value}')"
 
+    __str__ = __repr__
+
     @classmethod
     def add_or_update_agent_execution_config(cls, session, execution, agent_execution_configs):
         agent_execution_configurations = [
