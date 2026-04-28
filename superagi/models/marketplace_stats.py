@@ -32,8 +32,10 @@ class MarketPlaceStats(DBBaseModel):
         """
         Returns a string representation of the MarketplaceStats object.
         """
-        return f"Knowledge(id={self.id}, reference_id='{self.reference_id}', reference_name='{self.reference_name}', " \
-               f"key='{self.key}', value='{self.value}'"
+        return f"MarketplaceStats(id={self.id}, reference_id='{self.reference_id}', reference_name='{self.reference_name}', " \
+               f"key='{self.key}', value='{self.value}')"
+
+    __str__ = __repr__
 
     @classmethod
     def get_knowledge_installation_number(cls, knowledge_id: int):
