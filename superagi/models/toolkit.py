@@ -33,8 +33,10 @@ class Toolkit(DBBaseModel):
 
     def __repr__(self):
         return f"ToolKit(id={self.id}, name='{self.name}', description='{self.description}', " \
-               f"show_toolkit={self.show_toolkit}," \
-               f"organisation_id = {self.organisation_id}"
+               f"show_toolkit={self.show_toolkit}, " \
+               f"organisation_id={self.organisation_id})"
+
+    __str__ = __repr__
 
     def to_dict(self):
         return {
