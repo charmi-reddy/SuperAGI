@@ -36,6 +36,8 @@ class Configuration(DBBaseModel):
 
         return f"Config(id={self.id}, organisation_id={self.organisation_id}, key={self.key}, value={self.value})"
 
+    __str__ = __repr__
+
 
     @classmethod
     def fetch_configuration(cls, session, organisation_id: int, key: str, default_value=None) -> str:
